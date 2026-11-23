@@ -5,327 +5,333 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>AgroPest AI</title>
 <style>
-  :root{
-    --bg:#FAF6EF; --panel:#FFFFFF; --ink:#2E2418; --soil:#3E2F23;
-    --gold:#C08A1E; --leaf:#43724A; --sky:#3E6E8E; --line:#E4D9C4;
-    --danger:#A3472F;
-    color-scheme: light;
-    box-sizing:border-box;
-    padding-top: env(safe-area-inset-top,0px);
-    padding-bottom: env(safe-area-inset-bottom,0px);
+:root{
+  --bg:#f6f9f5; --surface:#ffffff; --text:#16281d; --muted:#5c7267;
+  --primary:#2d6a4f; --primary-dark:#1b4332; --primary-light:#74c69d;
+  --accent:#e08a1e; --border:#dfe9e1; --danger:#c1440e; --warn:#e08a1e; --ok:#2d6a4f;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1a14; --surface:#162820; --text:#eaf2ec; --muted:#9db3a6;
+    --primary:#52b788; --primary-dark:#2d6a4f; --primary-light:#74c69d;
+    --accent:#f0a940; --border:#24392f; color-scheme: dark;
   }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --bg:#1E1610; --panel:#2A2018; --ink:#F1E9DC; --soil:#F1E9DC;
-      --gold:#D9A740; --leaf:#6FAE78; --sky:#7FB2D6; --line:#4A3C2C;
-      --danger:#E08064;
-      color-scheme: dark;
-    }
-  }
-  :root[data-theme="dark"]{
-    --bg:#1E1610; --panel:#2A2018; --ink:#F1E9DC; --soil:#F1E9DC;
-    --gold:#D9A740; --leaf:#6FAE78; --sky:#7FB2D6; --line:#4A3C2C;
-    --danger:#E08064;
-    color-scheme: dark;
-  }
-  html,body{height:100%;}
-  body{
-    margin:0; background:var(--bg); color:var(--ink);
-    font-family: -apple-system, system-ui, "Segoe UI", Roboto, sans-serif;
-    display:flex; justify-content:center;
-  }
-  body::before{
-    content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px);
-    background:var(--bg); z-index:10;
-  }
-  .app{ width:100%; max-width:480px; min-height:100%; display:flex; flex-direction:column; }
-  header{
-    display:flex; align-items:center; justify-content:space-between;
-    padding:14px 18px; padding-top:calc(14px + env(safe-area-inset-top,0px));
-    border-bottom:1px solid var(--line); position:sticky; top:0; background:var(--bg); z-index:5;
-  }
-  .brand{ display:flex; align-items:center; gap:10px; }
-  .mark{ width:30px; height:30px; flex:none; }
-  .brand h1{ font-size:17px; margin:0; letter-spacing:.2px; }
-  .langbtn{
-    border:1px solid var(--line); background:var(--panel); color:var(--ink);
-    border-radius:8px; padding:6px 10px; font-size:13px; font-weight:600; cursor:pointer;
-  }
-  main{ flex:1; padding:22px 18px 40px; }
-  .screen{ display:none; animation:fade .25s ease; }
-  .screen.active{ display:block; }
-  @keyframes fade{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;} }
-
-  h2{ font-size:22px; line-height:1.3; margin:0 0 6px; }
-  .sub{ color:var(--ink); opacity:.7; font-size:14.5px; margin:0 0 22px; max-width:34ch; }
-
-  .primary{
-    display:block; width:100%; border:none; border-radius:14px;
-    background:var(--leaf); color:#fff; font-size:16px; font-weight:600;
-    padding:15px 18px; cursor:pointer; margin-top:8px;
-  }
-  .primary:active{ filter:brightness(.93); }
-  .ghost{
-    display:block; width:100%; border:1px solid var(--line); background:transparent;
-    color:var(--ink); border-radius:14px; font-size:15px; font-weight:600;
-    padding:14px 18px; cursor:pointer; margin-top:10px;
-  }
-  .hero{
-    background:var(--panel); border:1px solid var(--line); border-radius:18px;
-    padding:26px 20px; margin-bottom:22px;
-  }
-  .hero .mark-lg{ width:46px; height:46px; margin-bottom:14px; }
-
-  .crop-grid{ display:grid; gap:12px; }
-  .crop-card{
-    display:flex; align-items:center; gap:14px; text-align:left;
-    border:1px solid var(--line); background:var(--panel); border-radius:14px;
-    padding:16px; cursor:pointer; font-family:inherit; color:var(--ink);
-  }
-  .crop-card:active{ border-color:var(--gold); }
-  .crop-card .ico{ font-size:26px; flex:none; }
-  .crop-card b{ display:block; font-size:16px; }
-  .crop-card span{ font-size:13px; opacity:.65; }
-
-  .upload-box{
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    width:100%; min-height:170px; box-sizing:border-box;
-    border:2px dashed var(--line); border-radius:16px; padding:30px 16px;
-    text-align:center; background:var(--panel); cursor:pointer;
-  }
-  .upload-box img{ max-width:100%; border-radius:10px; margin-top:14px; }
-  input[type=file]{ display:none; }
-
-  .spinner{
-    width:34px; height:34px; border-radius:50%; margin:0 auto 16px;
-    border:3px solid var(--line); border-top-color:var(--leaf);
-    animation:spin 1s linear infinite;
-  }
-  @keyframes spin{ to{ transform:rotate(360deg); } }
-  .center-note{ text-align:center; opacity:.7; font-size:14.5px; }
-
-  .result-card{
-    background:var(--panel); border:1px solid var(--line); border-radius:18px;
-    padding:20px; margin-bottom:16px;
-  }
-  .pestname{ font-size:20px; font-weight:700; margin:0 0 10px; }
-  .meter-row{ display:flex; justify-content:space-between; font-size:13.5px; margin-bottom:4px; }
-  .meter{ height:8px; border-radius:5px; background:var(--line); overflow:hidden; margin-bottom:14px; }
-  .meter > div{ height:100%; background:var(--gold); }
-  .sev{ display:inline-block; padding:4px 10px; border-radius:7px; font-size:13px; font-weight:600; }
-  .sev.low{ background:var(--leaf); color:#fff; }
-  .sev.medium{ background:var(--gold); color:#2E2418; }
-  .sev.high{ background:var(--danger); color:#fff; }
-
-  .tips{ background:var(--panel); border:1px solid var(--line); border-radius:18px; padding:20px; }
-  .tips h3{ font-size:15px; margin:0 0 12px; }
-  .tips ol{ margin:0; padding-left:20px; }
-  .tips li{ margin-bottom:12px; font-size:14.5px; line-height:1.45; }
-  .tips li:last-child{ margin-bottom:0; }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1a14; --surface:#162820; --text:#eaf2ec; --muted:#9db3a6;
+  --primary:#52b788; --primary-dark:#2d6a4f; --primary-light:#74c69d;
+  --accent:#f0a940; --border:#24392f; color-scheme: dark;
+}
+*{box-sizing:border-box}
+html{height:100%; scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0; min-height:100%; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  background:var(--bg); color:var(--text);
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+.wrap{max-width:480px; margin:0 auto; padding:18px 18px 40px}
+header{display:flex; align-items:center; justify-content:space-between; padding:10px 0 18px}
+.brand{display:flex; align-items:center; gap:10px}
+.brand .logo{width:38px; height:38px; border-radius:11px; background:linear-gradient(135deg,var(--primary),var(--primary-light)); display:flex; align-items:center; justify-content:center; font-size:19px}
+.brand h1{font-size:17px; margin:0; letter-spacing:.2px}
+.brand small{display:block; color:var(--muted); font-size:11px; font-weight:500}
+.lang-toggle{display:flex; background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:3px}
+.lang-toggle button{border:0; background:transparent; padding:6px 12px; border-radius:999px; font-size:12px; font-weight:700; color:var(--muted); cursor:pointer}
+.lang-toggle button.active{background:var(--primary); color:#fff}
+.view{display:none}
+.view.active{display:block; animation:fade .25s ease}
+@keyframes fade{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
+.card{background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:20px; margin-bottom:14px}
+.hero h2{font-size:23px; line-height:1.3; margin:4px 0 8px}
+.hero p{color:var(--muted); font-size:14.5px; margin:0 0 18px; line-height:1.5}
+.btn{display:block; width:100%; text-align:center; border:0; border-radius:14px; padding:15px; font-size:15px; font-weight:700; cursor:pointer}
+.btn-primary{background:var(--primary); color:#fff}
+.btn-ghost{background:transparent; color:var(--primary); border:1.5px solid var(--primary); margin-top:10px}
+.back{display:inline-flex; align-items:center; gap:6px; color:var(--muted); font-size:13.5px; font-weight:600; background:none; border:0; padding:8px 0 16px; cursor:pointer}
+.note{font-size:12px; color:var(--muted); line-height:1.5; padding-top:4px; border-top:1px dashed var(--border); margin-top:14px}
+.crop-grid{display:grid; gap:10px}
+.crop-card{display:flex; align-items:center; gap:14px; background:var(--surface); border:1.5px solid var(--border); border-radius:16px; padding:16px; cursor:pointer; text-align:left}
+.crop-card .ic{font-size:26px}
+.crop-card b{display:block; font-size:15.5px}
+.crop-card span{color:var(--muted); font-size:12.5px}
+.crop-card:active{border-color:var(--primary)}
+.upload-box{border:2px dashed var(--border); border-radius:16px; padding:22px; text-align:center; margin-bottom:14px}
+.upload-box img{max-width:100%; border-radius:12px; max-height:220px; object-fit:cover}
+.upload-box .ph{color:var(--muted); font-size:13.5px}
+input[type=file]{display:none}
+.spinner{width:34px; height:34px; border:3px solid var(--border); border-top-color:var(--primary); border-radius:50%; margin:0 auto 14px; animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.result-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px}
+.pest-name{font-size:19px; font-weight:800; margin:0}
+.badge{font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px}
+.badge.low{background:#e4f3ea; color:var(--ok)}
+.badge.moderate{background:#fdf0dc; color:var(--warn)}
+.badge.severe{background:#fbe2da; color:var(--danger)}
+:root[data-theme="dark"] .badge.low, @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .badge.low{background:#1d3327}}
+.meter{height:8px; background:var(--border); border-radius:999px; overflow:hidden; margin:6px 0 2px}
+.meter i{display:block; height:100%; background:var(--primary)}
+.metric-row{display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-bottom:14px}
+.ipm{margin-top:4px}
+.ipm h4{font-size:13px; text-transform:uppercase; letter-spacing:.4px; color:var(--muted); margin:16px 0 8px}
+.ipm ul{margin:0; padding-left:18px}
+.ipm li{font-size:14px; line-height:1.55; margin-bottom:7px}
+.ipm .ha-sum{background:var(--bg); border-radius:10px; padding:10px 12px; font-size:13.5px; margin-top:10px; border:1px solid var(--border)}
+footer{text-align:center; color:var(--muted); font-size:11px; margin-top:20px; line-height:1.6}
 </style>
 </head>
 <body>
-<div class="app">
+<div class="wrap">
   <header>
     <div class="brand">
-      <svg class="mark" viewBox="0 0 32 32"><path d="M16 29V13" stroke="var(--leaf)" stroke-width="2.4" stroke-linecap="round"/><path d="M16 13C16 13 8 12 6 4C14 4 16 11 16 11C16 11 18 4 26 4C24 12 16 13 16 13Z" fill="var(--gold)"/></svg>
-      <h1 data-t="appName">AgroPest AI</h1>
+      <div class="logo">🌾</div>
+      <div><h1>AgroPest AI</h1><small data-i18n="tagSmall">Yobe State pilot prototype</small></div>
     </div>
-    <button class="langbtn" id="langBtn" onclick="toggleLang()">HA</button>
+    <div class="lang-toggle">
+      <button id="btn-en" class="active" onclick="setLang('en')">EN</button>
+      <button id="btn-ha" onclick="setLang('ha')">HA</button>
+    </div>
   </header>
 
-  <main>
-    <section class="screen active" id="screen-home">
-      <div class="hero">
-        <svg class="mark-lg" viewBox="0 0 32 32"><path d="M16 29V13" stroke="var(--leaf)" stroke-width="2.4" stroke-linecap="round"/><path d="M16 13C16 13 8 12 6 4C14 4 16 11 16 11C16 11 18 4 26 4C24 12 16 13 16 13Z" fill="var(--gold)"/></svg>
-        <h2 data-t="tagline">Spot the pest. Protect the harvest.</h2>
-        <p class="sub" data-t="aboutLine">Built for millet, sorghum and cowpea farmers in Yobe State.</p>
-        <button class="primary" data-t="homeCta" onclick="goTo('crop')">Identify a pest</button>
-      </div>
-    </section>
+  <section id="view-home" class="view active">
+    <div class="card hero">
+      <h2 data-i18n="homeTitle">Spot the pest. Protect the harvest.</h2>
+      <p data-i18n="homeSub">Built for millet, sorghum and cowpea farmers in Yobe State.</p>
+      <button class="btn btn-primary" data-i18n="ctaIdentify" onclick="goto('crop')">Identify a pest</button>
+      <div class="note" data-i18n="aboutNote">This build includes a working on-device matching engine, seeded with pest profiles and IPM guidance from the Yobe/Borno reference data. It's a research prototype: the next step is training a deep-learning model on real field photos.</div>
+    </div>
+  </section>
 
-    <section class="screen" id="screen-crop">
-      <h2 data-t="chooseCropTitle">Which crop needs checking?</h2>
-      <p class="sub" data-t="chooseCropSub">Pick the crop showing signs of damage.</p>
+  <section id="view-crop" class="view">
+    <button class="back" onclick="goto('home')">&larr; <span data-i18n="back">Back</span></button>
+    <div class="card">
+      <h2 style="font-size:18px;margin:0 0 4px" data-i18n="cropTitle">Which crop needs checking?</h2>
+      <p style="color:var(--muted);font-size:13.5px;margin:0 0 16px" data-i18n="cropSub">Pick the crop showing signs of damage.</p>
       <div class="crop-grid">
-        <button class="crop-card" onclick="selectCrop('millet')"><span class="ico">🌾</span><span><b data-t="cropMillet">Millet</b><span data-t="cropMilletLocal">Gero</span></span></button>
-        <button class="crop-card" onclick="selectCrop('sorghum')"><span class="ico">🌿</span><span><b data-t="cropSorghum">Sorghum</b><span data-t="cropSorghumLocal">Dawa</span></span></button>
-        <button class="crop-card" onclick="selectCrop('cowpea')"><span class="ico">🫘</span><span><b data-t="cropCowpea">Cowpea</b><span data-t="cropCowpeaLocal">Wake</span></span></button>
+        <div class="crop-card" onclick="selectCrop('millet')"><span class="ic">🌾</span><div><b data-i18n="cropMillet">Millet</b><span data-i18n="cropMilletHa">Gero</span></div></div>
+        <div class="crop-card" onclick="selectCrop('sorghum')"><span class="ic">🌿</span><div><b data-i18n="cropSorghum">Sorghum</b><span data-i18n="cropSorghumHa">Dawa</span></div></div>
+        <div class="crop-card" onclick="selectCrop('cowpea')"><span class="ic">🫘</span><div><b data-i18n="cropCowpea">Cowpea</b><span data-i18n="cropCowpeaHa">Wake</span></div></div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section class="screen" id="screen-upload">
-      <h2 data-t="uploadTitle">Show me the damage</h2>
-      <p class="sub" data-t="uploadHint">Take a clear photo of the affected leaf, stem or pod.</p>
-      <label class="upload-box" for="fileInput" id="uploadBox">
-        <div data-t="uploadBtn" style="font-weight:600;">Choose photo</div>
-        <img id="preview" style="display:none;">
-      </label>
-      <input type="file" id="fileInput" accept="image/*" onchange="onPhoto(event)">
-    </section>
-
-    <section class="screen" id="screen-analyzing">
-      <div style="padding-top:60px;">
-        <div class="spinner"></div>
-        <p class="center-note" data-t="analyzing">Looking closely...</p>
+  <section id="view-upload" class="view">
+    <button class="back" onclick="goto('crop')">&larr; <span data-i18n="back">Back</span></button>
+    <div class="card">
+      <h2 style="font-size:18px;margin:0 0 4px" data-i18n="upTitle">Show me the damage</h2>
+      <p style="color:var(--muted);font-size:13.5px;margin:0 0 16px" data-i18n="upSub">Take a clear, close-up photo of the affected leaf, stem or pod.</p>
+      <div class="upload-box" id="uploadBox">
+        <div class="ph" id="uploadPh" data-i18n="uploadPh">No photo selected yet</div>
       </div>
-    </section>
+      <label class="btn btn-ghost" for="fileInput" data-i18n="choosePhoto">Choose photo</label>
+      <input type="file" accept="image/*" capture="environment" id="fileInput" onchange="onFile(event)">
+      <button class="btn btn-primary" id="analyzeBtn" style="margin-top:10px" disabled onclick="runAnalysis()" data-i18n="analyzeBtn">Identify</button>
+    </div>
+  </section>
 
-    <section class="screen" id="screen-result">
-      <h2 data-t="resultTitle">Here's what I found</h2>
-      <div class="result-card">
-        <p class="pestname" id="pestName">—</p>
-        <div class="meter-row"><span data-t="confidenceLabel">Confidence</span><span id="confVal"></span></div>
-        <div class="meter"><div id="confBar"></div></div>
-        <div class="meter-row" style="margin-bottom:0;"><span data-t="severityLabel">Severity</span><span class="sev" id="sevBadge"></span></div>
-      </div>
-      <button class="primary" data-t="viewIpmBtn" onclick="goTo('tips')">See how to treat it</button>
-      <button class="ghost" data-t="backHome" onclick="goTo('crop')">Check another crop</button>
-    </section>
+  <section id="view-loading" class="view">
+    <div class="card" style="text-align:center;padding:40px 20px">
+      <div class="spinner"></div>
+      <div data-i18n="analyzing">Looking closely...</div>
+    </div>
+  </section>
 
-    <section class="screen" id="screen-tips">
-      <h2 data-t="ipmTitle">Treatment plan</h2>
-      <div class="tips">
-        <h3 id="tipsPestName"></h3>
-        <ol id="tipsList"></ol>
+  <section id="view-result" class="view">
+    <div class="card">
+      <div class="result-head">
+        <p class="pest-name" id="resName">—</p>
+        <span class="badge" id="resBadge"></span>
       </div>
-      <button class="ghost" data-t="backHome" onclick="goTo('crop')">Check another crop</button>
-    </section>
-  </main>
+      <div class="metric-row"><span data-i18n="confidenceLabel">Confidence</span><span id="resConf">—</span></div>
+      <div class="meter"><i id="resMeter" style="width:0%"></i></div>
+      <p id="resDesc" style="font-size:13.5px;color:var(--muted);margin:14px 0 0"></p>
+      <button class="btn btn-ghost" id="treatToggle" onclick="toggleTreat()" data-i18n="treatmentBtn">See how to treat it</button>
+      <div class="ipm" id="ipmBlock" style="display:none">
+        <h4 data-i18n="ipmTitle">Treatment plan (IPM-first)</h4>
+        <ul id="ipmList"></ul>
+        <div class="ha-sum" id="haSummary"></div>
+      </div>
+      <button class="btn btn-primary" style="margin-top:16px" onclick="goto('crop')" data-i18n="checkAnother">Check another crop</button>
+    </div>
+  </section>
+
+  <footer>
+    AgroPest AI — prototype by Sani Adamu · Yobe State<br>
+    <span data-i18n="footerNote">Matching engine runs fully on-device — no photo is uploaded anywhere.</span>
+  </footer>
 </div>
 
+<canvas id="cv" width="72" height="72" style="display:none"></canvas>
+
 <script>
-const T = {
-  appName:{en:"AgroPest AI", ha:"AgroPest AI"},
-  tagline:{en:"Spot the pest. Protect the harvest.", ha:"Gano kwaro. Kare amfanin gona."},
-  aboutLine:{en:"Built for millet, sorghum and cowpea farmers in Yobe State.", ha:"An gina shi don manoman gero, dawa da wake a Jihar Yobe."},
-  homeCta:{en:"Identify a pest", ha:"Gano kwaro"},
-  chooseCropTitle:{en:"Which crop needs checking?", ha:"Wane amfanin gona ake bukatar dubawa?"},
-  chooseCropSub:{en:"Pick the crop showing signs of damage.", ha:"Zabi amfanin gonar da ke da alamun lalacewa."},
-  cropMillet:{en:"Millet", ha:"Gero"}, cropMilletLocal:{en:"Gero", ha:"Millet"},
-  cropSorghum:{en:"Sorghum", ha:"Dawa"}, cropSorghumLocal:{en:"Dawa", ha:"Sorghum"},
-  cropCowpea:{en:"Cowpea", ha:"Wake"}, cropCowpeaLocal:{en:"Wake", ha:"Cowpea"},
-  uploadTitle:{en:"Show me the damage", ha:"Nuna mini illar da aka yi"},
-  uploadHint:{en:"Take a clear photo of the affected leaf, stem or pod.", ha:"Dauki hoto bayyananne na ganye, kara, ko kwasfar da abin ya shafa."},
-  uploadBtn:{en:"Choose photo", ha:"Zabi hoto"},
-  analyzing:{en:"Looking closely...", ha:"Ana duba da kyau..."},
-  resultTitle:{en:"Here's what I found", ha:"Ga abin da na gano"},
-  confidenceLabel:{en:"Confidence", ha:"Tabbaci"},
-  severityLabel:{en:"Severity", ha:"Girman matsala"},
-  viewIpmBtn:{en:"See how to treat it", ha:"Duba yadda ake magance shi"},
-  backHome:{en:"Check another crop", ha:"Duba wani amfanin gona"},
-  ipmTitle:{en:"Treatment plan", ha:"Shirin magani"},
-  low:{en:"Low", ha:"Kadan"}, medium:{en:"Medium", ha:"Matsakaici"}, high:{en:"High", ha:"Mai yawa"}
+const I18N = {
+  en:{ tagSmall:"Yobe State pilot prototype", homeTitle:"Spot the pest. Protect the harvest.",
+    homeSub:"Built for millet, sorghum and cowpea farmers in Yobe State.", ctaIdentify:"Identify a pest",
+    aboutNote:"This build includes a working on-device matching engine, seeded with pest profiles and IPM guidance from the Yobe/Borno reference data. It's a research prototype: the next step is training a deep-learning model on real field photos.",
+    back:"Back", cropTitle:"Which crop needs checking?", cropSub:"Pick the crop showing signs of damage.",
+    cropMillet:"Millet", cropSorghum:"Sorghum", cropCowpea:"Cowpea",
+    upTitle:"Show me the damage", upSub:"Take a clear, close-up photo of the affected leaf, stem or pod.",
+    uploadPh:"No photo selected yet", choosePhoto:"Choose photo", analyzeBtn:"Identify", analyzing:"Looking closely...",
+    confidenceLabel:"Confidence", treatmentBtn:"See how to treat it", ipmTitle:"Treatment plan (IPM-first)",
+    checkAnother:"Check another crop", footerNote:"Matching engine runs fully on-device — no photo is uploaded anywhere.",
+    low:"Low", moderate:"Moderate", severe:"Severe" },
+  ha:{ tagSmall:"Fasalin gwaji — Jihar Yobe", homeTitle:"Gano kwaro. Kare amfanin gona.",
+    homeSub:"An tsara don manoman gero, dawa, da wake a jihar Yobe.", ctaIdentify:"Gano kwaro",
+    aboutNote:"Wannan fasali yana da na'urar gwaji wadda ke duba hoto a wayarka kai tsaye, tare da bayanan kwari da magani daga jagorar Yobe/Borno. Har yanzu fasali ne na bincike — mataki na gaba shi ne horar da cikakken AI akan hotunan gona na gaske.",
+    back:"Baya", cropTitle:"Wane amfanin gona kake son duba?", cropSub:"Zaɓi amfanin gonar da ke nuna alamun lalacewa.",
+    cropMillet:"Gero", cropSorghum:"Dawa", cropCowpea:"Wake",
+    upTitle:"Nuna mini lalacewar", upSub:"Ɗauki hoto a sarari na ganye, kara, ko kwaya da abin ya shafa.",
+    uploadPh:"Ba a zaɓi hoto ba tukuna", choosePhoto:"Zaɓi hoto", analyzeBtn:"Gano", analyzing:"Ana nazari...",
+    confidenceLabel:"Tabbaci", treatmentBtn:"Duba yadda ake magani", ipmTitle:"Tsarin magani (IPM)",
+    checkAnother:"Duba wani amfanin gona", footerNote:"Nazarin yana faruwa a wayarka kai tsaye — ba a tura hoto ko'ina.",
+    low:"Kadan", moderate:"Matsakaici", severe:"Mai tsanani" }
 };
+let lang='en', selectedCrop=null, lastResult=null;
 
-const PESTS = {
-  millet:[
-    {name:{en:"Stem Borer", ha:"Tsutsa mai huda kara"},
-     tips:{en:["Destroy or compost old stalks after harvest to eliminate resting larvae.","At first signs of whorl feeding, apply neem leaf powder + wood ash into the leaf whorl, or spray 5% Neem Seed Kernel Extract (NSKE) / Bt.","Scout weekly: 10% or more plants with whorl feeding means treatment is due; above 20% before tunneling, a targeted synthetic spray may be needed.","Spray early morning or after 4:30pm to protect neem and Bt from sunlight breakdown."],
-         ha:["Zubar ko tara tsohon kara bayan girbi domin kashe tsutsar da ke boye a ciki.","Idan alamun huji ko cin tsakiyar ganye sun bayyana, a zuba foda na ganyen neem da toka a cikin tsakiyar ganye, ko fesa 5% NSKE / Bt.","Duba gona kowane mako: idan kashi 10% ko fiye na shuke-shuke suna da alamun ciyarwa, lokaci yayi na magani; sama da kashi 20% kafin huda kara, a yi la'akari da feshin roba.","Yi feshi da safe ko bayan karfe 4:30 na yamma domin kiyaye neem da Bt daga rana."]}},
-    {name:{en:"Fall Armyworm", ha:"Tsutsar sojan gona"},
-     tips:{en:["Scout whorls weekly for ragged holes and frass (droppings).","At early instars (10-15% plants infested), spray 5% NSKE or Bacillus thuringiensis (Bt) into the whorl.","At 20% or more vegetative-stage plants infested (or 10% at heading), a targeted synthetic spray is justified.","Spray late afternoon to protect biopesticides from UV breakdown."],
-         ha:["Duba tsakiyar ganye kowane mako domin neman ramuka da kazar tsutsa.","Idan kashi 10-15% na shuke-shuke suna da kananan tsutsa, fesa 5% NSKE ko Bt a cikin tsakiyar ganye.","Idan kashi 20% ko fiye na shuke-shuke (ko 10% lokacin fure) suna da tsutsa, feshin roba ya zama dole.","Yi feshi da yamma domin kiyaye maganin halitta daga rana."]}},
-    {name:{en:"Shoot Fly", ha:"Kudan dawa"},
-     tips:{en:["Sow synchronously with the first steady rains to escape peak shoot fly pressure.","Check seedlings weekly for dead-hearts (wilting central shoot).","At 5% of seedlings with eggs or dead-hearts, monitor closely; at 10% or more, rogue and destroy affected seedlings.","Seed dressing (e.g. thiamethoxam + metalaxyl) at planting helps prevent early attack."],
-         ha:["Shuka tare da ruwan sama na farko domin guje wa yawan kudan dawa.","Duba tsire-tsire kowane mako domin neman matattun zukata a tsakiyar ganye.","Idan kashi 5% na tsire-tsire suna da kwai ko matacciyar zuciya, a lura sosai; a kashi 10% ko fiye, a cire a zubar da tsire-tsiren da abin ya shafa.","Shafa maganin iri (misali thiamethoxam + metalaxyl) lokacin shuka yana taimakawa kariya tun farko."]}},
-    {name:{en:"Millet Head Miner", ha:"Tsutsar kan gero"},
-     tips:{en:["Inspect 20 panicles weekly for spiral tracks from first heading.","At 1-2 larvae per panicle, release Habrobracon hebetor parasitic wasps, or spot-spray Bt / 5% NSKE on panicles.","At 3 or more larvae on over 20% of panicles, a stronger targeted response is needed.","Plant resistant or early-maturing varieties where available to reduce exposure."],
-         ha:["Duba kan gero guda 20 kowane mako domin neman alamar lankwasa tun farkon fure.","Idan akwai tsutsa 1-2 a kowane kan gero, a saki kudan Habrobracon hebetor, ko a fesa Bt / 5% NSKE kan kan gero.","Idan akwai tsutsa 3 ko fiye a sama da kashi 20% na kan gero, ana bukatar mataki mai karfi.","Shuka iri masu jure wa kwari ko masu saurin girma domin rage hadari."]}}
-  ],
-  sorghum:[
-    {name:{en:"Stem Borer", ha:"Tsutsa mai huda kara"},
-     tips:{en:["Destroy or compost old stalks after harvest to eliminate resting larvae.","At first signs of whorl feeding, apply neem leaf powder + wood ash into the leaf whorl, or spray 5% NSKE / Bt.","Scout weekly: 10% or more plants with whorl feeding means treatment is due; above 20% before tunneling, a targeted synthetic spray may be needed.","Spray early morning or after 4:30pm to protect neem and Bt from sunlight breakdown."],
-         ha:["Zubar ko tara tsohon kara bayan girbi domin kashe tsutsar da ke boye a ciki.","Idan alamun huji ko cin tsakiyar ganye sun bayyana, a zuba foda na ganyen neem da toka a cikin tsakiyar ganye, ko fesa 5% NSKE / Bt.","Duba gona kowane mako: idan kashi 10% ko fiye na shuke-shuke suna da alamun ciyarwa, lokaci yayi na magani; sama da kashi 20% kafin huda kara, a yi la'akari da feshin roba.","Yi feshi da safe ko bayan karfe 4:30 na yamma domin kiyaye neem da Bt daga rana."]}},
-    {name:{en:"Fall Armyworm", ha:"Tsutsar sojan gona"},
-     tips:{en:["Scout whorls weekly for ragged holes and frass (droppings).","At early instars (10-15% plants infested), spray 5% NSKE or Bacillus thuringiensis (Bt) into the whorl.","At 20% or more vegetative-stage plants infested (or 10% at heading), a targeted synthetic spray is justified.","Spray late afternoon to protect biopesticides from UV breakdown."],
-         ha:["Duba tsakiyar ganye kowane mako domin neman ramuka da kazar tsutsa.","Idan kashi 10-15% na shuke-shuke suna da kananan tsutsa, fesa 5% NSKE ko Bt a cikin tsakiyar ganye.","Idan kashi 20% ko fiye na shuke-shuke (ko 10% lokacin fure) suna da tsutsa, feshin roba ya zama dole.","Yi feshi da yamma domin kiyaye maganin halitta daga rana."]}},
-    {name:{en:"Shoot Fly", ha:"Kudan dawa"},
-     tips:{en:["Sow synchronously with the first steady rains to escape peak shoot fly pressure.","Check seedlings weekly for dead-hearts (wilting central shoot).","At 5% of seedlings with eggs or dead-hearts, monitor closely; at 10% or more, rogue and destroy affected seedlings.","Seed dressing (e.g. thiamethoxam + metalaxyl) at planting helps prevent early attack."],
-         ha:["Shuka tare da ruwan sama na farko domin guje wa yawan kudan dawa.","Duba tsire-tsire kowane mako domin neman matattun zukata a tsakiyar ganye.","Idan kashi 5% na tsire-tsire suna da kwai ko matacciyar zuciya, a lura sosai; a kashi 10% ko fiye, a cire a zubar da tsire-tsiren da abin ya shafa.","Shafa maganin iri (misali thiamethoxam + metalaxyl) lokacin shuka yana taimakawa kariya tun farko."]}},
-    {name:{en:"Sorghum Midge", ha:"Kananan kudan kan dawa"},
-     tips:{en:["Plant uniformly across the area so flowering is synchronised, reducing midge build-up.","Check 20 flowering heads between 7-10am weekly during flowering.","At 1 midge per 2 flowering heads, biopesticide action is due; at 1 or more adult midge per head, synthetic spray may be needed.","Remove wild sorghum/grass hosts growing near the field."],
-         ha:["Shuka a lokaci guda a fadin gonar don furanni su huda lokaci guda, domin rage yawan kwari.","Duba kan dawa guda 20 tsakanin karfe 7-10 na safe kowane mako lokacin fure.","Idan akwai kwaro 1 a kowane kan dawa 2, lokaci yayi na maganin halitta; idan kwaro 1 ko fiye a kowane kai, ana iya bukatar feshin roba.","Cire gyauro dake girma kusa da gona."]}}
-  ],
-  cowpea:[
-    {name:{en:"Cowpea Aphid", ha:"Kwarin ganyen wake"},
-     tips:{en:["Check stems, shoots and leaf undersides weekly from seedling to flowering stage.","At 10-15% of plants with small colonies, spray 5% NSKE or hot pepper-garlic extract.","At over 25% of plants heavily colonised or curling, consider a targeted synthetic spray.","Conserve ladybird beetles and other natural predators by avoiding unnecessary spraying."],
-         ha:["Duba kara, harbe-harbe da karkashin ganye kowane mako tun lokacin shuka har zuwa fure.","Idan kashi 10-15% na tsire-tsire na da kananan tarin kwari, fesa 5% NSKE ko ruwan barkono da tafarnuwa.","Idan sama da kashi 25% na tsire-tsire sun cika da kwari ko ganyen na lankwasawa, a yi la'akari da feshin roba.","Kiyaye ladybird da sauran dabbobin da ke cin kwari ta hanyar guje wa feshi da ba dole ba."]}},
-    {name:{en:"Flower Bud Thrips", ha:"Kananan kwarin furen wake"},
-     tips:{en:["Tap 20 buds or flowers onto your palm or white paper weekly to count thrips.","At 2-3 thrips per flower/bud, spray 5% NSKE or chili-garlic extract (Spray 1 of the cowpea 3-spray system, around 35-40 days after sowing).","At 5 or more thrips per flower/bud, a synthetic spray may be justified.","Use synthetic insecticide only if this threshold is exceeded; conserve natural enemies otherwise."],
-         ha:["Kada furanni ko toho guda 20 a tafin hannu ko fari takarda kowane mako domin kirga kwari.","Idan akwai kwari 2-3 a kowane fure/toho, fesa 5% NSKE ko ruwan barkono da tafarnuwa (Feshi na farko, kusan kwana 35-40 bayan shuka).","Idan akwai kwari 5 ko fiye a kowane fure, ana iya bukatar feshin roba.","A yi amfani da feshin roba kawai idan wannan iyaka ta wuce; a kiyaye dabbobin da ke taimakawa in ba haka ba."]}},
-    {name:{en:"Maruca Pod Borer", ha:"Tsutsar kwarin wake"},
-     tips:{en:["Open 20 flowers or young pods weekly to check for larvae.","At 1-2 larvae per 10 flowers/pods (around 50% flowering, 45-50 days after sowing), spray Bt or 5% NSKE - this is Spray 2 of the cowpea 3-spray system.","At 3 or more larvae per 10 flowers/pods, rotate in a contact insecticide at outbreak levels.","Intercropping cowpea with cereals like millet helps reduce pest spread."],
-         ha:["Bude furanni ko kananan kwasfa guda 20 kowane mako domin neman tsutsa.","Idan akwai tsutsa 1-2 a cikin furanni/kwasfa 10 (kusan kashi 50% na fure, kwana 45-50 bayan shuka), fesa Bt ko 5% NSKE - wannan shine Feshi na biyu na tsarin feshi uku na wake.","Idan akwai tsutsa 3 ko fiye a cikin furanni/kwasfa 10, a canza zuwa maganin roba mai taba jiki.","Hada shuka wake da hatsi kamar gero yana taimakawa rage yaduwar kwari."]}},
-    {name:{en:"Pod-Sucking Bugs", ha:"Kwari masu tsotse wake"},
-     tips:{en:["Count bugs along a 1-metre row at 5 spots weekly during pod-filling.","At 1 bug per metre of row, spray 5% NSKE as an antifeedant (Spray 3 of the cowpea 3-spray system, around pod filling, 55-60 days after sowing).","At 2 or more bugs per metre of row, a targeted contact spray may be needed.","Strictly observe Pre-Harvest Intervals before picking green pods or leaves for food."],
-         ha:["Kirga kwari a layi mai tsawon mita 1 a wurare 5 kowane mako lokacin cika kwasfa.","Idan akwai kwaro 1 a kowane mita, fesa 5% NSKE (Feshi na uku na tsarin feshi uku, kusan kwana 55-60 bayan shuka).","Idan akwai kwari 2 ko fiye a kowane mita, ana iya bukatar feshin roba mai taba jiki.","A tsaurara kan lokutan jiran girbi (PHI) kafin cire ganye ko kwasfa don abinci."]}},
-    {name:{en:"Cowpea Bruchid (Storage)", ha:"Kwari masu huda wake"},
-     tips:{en:["Harvest promptly and dry grain below 12% moisture before storage.","Store food cowpea in triple-layer PICS hermetic bags without chemical dust.","Mix sieved wood ash or dried neem leaf powder into saved planting seed to block bruchid beetles.","Check stored grain periodically for small round exit holes, a sign of active bruchid damage."],
-         ha:["A girbe da wuri a bushe hatsi zuwa kasa da kashi 12% na danshi kafin ajiya.","A ajiye wake na abinci a cikin jakar PICS mai layuka uku ba tare da foda na sinadarai ba.","A hada toka da aka tace ko foda na ganyen neem cikin irin da za a shuka domin toshe kwari.","A duba hatsin da aka ajiye lokaci-lokaci domin neman kananan ramuka, alamar lalacewar kwari."]}}
-  ]
-};
+const PESTS = [
+ {crop:'millet', en:{name:'Downy Mildew ("Green Ear")', desc:'Fungal disease; distorted, pale-streaked leaves and leafy green heads instead of grain.'},
+  ha:{name:'Cutar Ganyen Kore'},
+  ipm:['Plant certified/resistant seed where available.','Rogue out and destroy infected "green ear" plants as soon as seen.','Rotate millet with legumes rather than continuous cropping.','Avoid waterlogged fields; improve drainage.'],
+  haSum:'Yi amfani da iri mai inganci, cire shuke-shuken da cutar ta kama da wuri, kuma a yi jujjuyawar amfanin gona.',
+  sig:{green:.55,brown:.22,dark:.06,edge:.30}},
+ {crop:'millet', en:{name:'Millet Head Miner',desc:'Larvae tunnel into the developing head; frass and partially blank grain heads.'},
+  ha:{name:'Tsutsar Kan Dawa (Gero)'},
+  ipm:['Plant early and in synchrony with neighbouring farms to escape peak moth activity.','Hand-pick and destroy infested heads at flowering.','Conserve natural enemies (parasitic wasps) — avoid broad-spectrum sprays.','Apply neem seed-extract spray at early flowering if pressure is high.'],
+  haSum:'Shuka da wuri tare da sauran manoma, a cire kan da aka kama, a kiyaye kwari masu amfani, a yi amfani da man kwakwa/neem idan ya zama dole.',
+  sig:{green:.30,brown:.42,dark:.30,edge:.55}},
+ {crop:'millet', en:{name:'Millet Stem Borer',desc:'Larvae tunnel the stem; central shoot wilts and dies ("deadheart"), stem holes with frass.'},
+  ha:{name:'Tsutsar Kara'},
+  ipm:['Destroy crop residues after harvest to remove overwintering sites.','Plant early in the rains.','Hand-pull and destroy deadheart shoots.','Intercrop with legumes to reduce pest buildup.'],
+  haSum:'A kona ko a lalata sauran gonar bayan girbi, a shuka da wuri, a cire kara masu mutuwa, a yi noman gauraye da wake.',
+  sig:{green:.40,brown:.32,dark:.22,edge:.45}},
+ {crop:'sorghum', en:{name:'Sorghum Shoot Fly',desc:'Attacks young seedlings; the central leaf wilts and dries out ("deadheart").'},
+  ha:{name:'Kudan Harbin Dawa'},
+  ipm:['Plant at the very onset of rains; avoid late/staggered planting.','Increase seed rate and thin later to compensate for losses.','Remove and destroy deadheart seedlings promptly.','Prefer resistant varieties where seed is available.'],
+  haSum:'Shuka da zarar damina ta fara, a shuka iri da yawa sannan a rage daga baya, a cire shuke-shuken da suka mutu da wuri.',
+  sig:{green:.35,brown:.30,dark:.10,edge:.22}},
+ {crop:'sorghum', en:{name:'Sorghum Midge',desc:'Tiny larvae feed inside florets; panicle looks normal but grain is empty/chaffy. Best diagnosed from a panicle photo rather than a leaf photo.'},
+  ha:{name:'Ƙwarorin Kan Dawa'},
+  ipm:['Synchronize planting dates across the community to reduce carry-over.','Favour resistant/tolerant varieties where known.','Avoid staggered planting in the same area across a season.','Conserve natural predators; scout panicles at flowering.'],
+  haSum:'A tsara shuka lokaci guda a unguwa, a zaɓi irin da suka dace, a duba kan dawa lokacin fure.',
+  sig:{green:.55,brown:.14,dark:.05,edge:.18}},
+ {crop:'sorghum', en:{name:'Spotted Stem Borer',desc:'Holes and frass on the stem; central shoot may wilt and die.'},
+  ha:{name:'Tsutsar Kara mai Tabo'},
+  ipm:['Destroy stubble and crop residue after harvest.','Plant early in the season.','Hand-pick visible larvae and deadheart shoots.','Use neem-based botanical sprays where infestation is heavy.'],
+  haSum:'A lalata sauran gonar bayan girbi, a shuka da wuri, a cire tsutsa da hannu, a yi amfani da maganin ganyen neem.',
+  sig:{green:.38,brown:.34,dark:.24,edge:.48}},
+ {crop:'cowpea', en:{name:'Legume Pod Borer (Maruca)',desc:'Holes and webbing on flowers and pods, with visible frass.'},
+  ha:{name:'Tsutsar Kwandon Wake'},
+  ipm:['Plant early in the season.','Intercrop cowpea with millet or sorghum to reduce incidence.','Remove and destroy infested flowers/pods regularly.','Apply neem-extract spray at flowering and early podding.'],
+  haSum:'Shuka da wuri, a yi noman gauraye da gero ko dawa, a cire furanni/kwandon da aka kama, a yi amfani da maganin neem lokacin fure.',
+  sig:{green:.32,brown:.30,dark:.28,edge:.50}},
+ {crop:'cowpea', en:{name:'Cowpea Aphids',desc:'Clusters of small dark/green insects on tender shoots; sticky honeydew, sooty mould, curling leaves.'},
+  ha:{name:'Ƙudaje Masu Taushi (Aphid)'},
+  ipm:['Scout seedlings closely in the first 3 weeks — this is the most vulnerable stage.','Conserve natural enemies (ladybird beetles) by avoiding broad-spectrum sprays.','Use neem or soap-water spray on affected shoots.','Avoid excess nitrogen fertilizer, which favours aphid buildup.'],
+  haSum:'A duba shuka tun suna ƙanana, a kiyaye kwari masu amfani, a yi amfani da ruwan sabulu ko neem, a guji takin nitrogen fiye da kima.',
+  sig:{green:.62,brown:.10,dark:.14,edge:.20}},
+ {crop:'cowpea', en:{name:'Bruchid / Cowpea Weevil (storage)',desc:'Small round holes in dried seeds — a post-harvest storage pest, not usually visible on a growing-field photo.'},
+  ha:{name:'Ƙwarorin Ajiyar Wake'},
+  ipm:['Dry grain thoroughly before storage.','Use hermetic/airtight storage such as PICS triple-layer bags.','Never store pods/grain that were already damaged in the field.','Mix dried neem leaf powder with grain as a botanical protectant.'],
+  haSum:'A busar da hatsi sosai kafin ajiya, a yi amfani da buhun PICS mai kyau, a kauce wa ajiye hatsin da aka riga aka lalace, a gauraya da ganyen neem busasshe.',
+  sig:{green:.15,brown:.35,dark:.40,edge:.55}}
+];
 
-let lang = 'en';
-let currentCrop = null;
-
-function applyLang(){
-  document.querySelectorAll('[data-t]').forEach(el=>{
-    const key = el.getAttribute('data-t');
-    if(T[key]) el.textContent = T[key][lang];
+function setLang(l){
+  lang=l;
+  document.getElementById('btn-en').classList.toggle('active', l==='en');
+  document.getElementById('btn-ha').classList.toggle('active', l==='ha');
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k=el.getAttribute('data-i18n'); if(I18N[l][k]) el.textContent=I18N[l][k];
   });
-  document.getElementById('langBtn').textContent = lang==='en' ? 'HA' : 'EN';
+  if(lastResult) renderResult(lastResult);
 }
-function toggleLang(){ lang = lang==='en' ? 'ha' : 'en'; applyLang(); if(currentResult) renderResult(); }
-
-function goTo(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById('screen-'+id).classList.add('active');
+function goto(view){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+view).classList.add('active');
 }
-function selectCrop(crop){ currentCrop = crop; goTo('upload'); }
-
-function onPhoto(e){
-  const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = ()=>{
-    const img = document.getElementById('preview');
-    img.src = reader.result; img.style.display='block';
-    goTo('analyzing');
-    setTimeout(runMockIdentify, 1400);
+function selectCrop(c){ selectedCrop=c; document.getElementById('analyzeBtn').disabled=true;
+  document.getElementById('uploadBox').innerHTML='<div class="ph" data-i18n="uploadPh">'+I18N[lang].uploadPh+'</div>';
+  goto('upload');
+}
+let imgEl=null;
+function onFile(e){
+  const f=e.target.files[0]; if(!f) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const box=document.getElementById('uploadBox');
+    box.innerHTML='<img id="previewImg" src="'+ev.target.result+'">';
+    imgEl=new Image(); imgEl.onload=()=>{ document.getElementById('analyzeBtn').disabled=false; };
+    imgEl.src=ev.target.result;
   };
-  reader.readAsDataURL(file);
+  reader.readAsDataURL(f);
 }
-
-let currentResult = null;
-function runMockIdentify(){
-  const list = PESTS[currentCrop];
-  const pest = list[Math.floor(Math.random()*list.length)];
-  const confidence = Math.floor(70 + Math.random()*25);
-  const sevKeys = ['low','medium','high'];
-  const severity = sevKeys[Math.floor(Math.random()*sevKeys.length)];
-  currentResult = {pest, confidence, severity};
-  renderResult();
-  goTo('result');
+function analyzeImage(img){
+  const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+  ctx.drawImage(img,0,0,72,72);
+  const data=ctx.getImageData(0,0,72,72).data;
+  let green=0,brown=0,dark=0,total=72*72,gray=new Float32Array(total);
+  for(let i=0;i<total;i++){
+    const r=data[i*4],g=data[i*4+1],b=data[i*4+2];
+    const mx=Math.max(r,g,b), mn=Math.min(r,g,b), l=(mx+mn)/2/255;
+    gray[i]=(r*0.299+g*0.587+b*0.114);
+    if(l<0.17){ dark++; continue; }
+    let h=0; const d=mx-mn;
+    if(d!==0){
+      if(mx===r) h=60*(((g-b)/d)%6);
+      else if(mx===g) h=60*((b-r)/d+2);
+      else h=60*((r-g)/d+4);
+    }
+    if(h<0) h+=360;
+    const s=mx===0?0:d/mx;
+    if(h>=60 && h<=170 && s>0.12) green++;
+    else if(h>=15 && h<60 && s>0.10) brown++;
+  }
+  let edgeSum=0,edgeN=0;
+  for(let y=1;y<71;y++) for(let x=1;x<71;x++){
+    const i=y*72+x;
+    const dx=gray[i+1]-gray[i-1], dy=gray[i+72]-gray[i-72];
+    edgeSum+=Math.sqrt(dx*dx+dy*dy); edgeN++;
+  }
+  return { green:green/total, brown:brown/total, dark:dark/total, edge:Math.min(1, (edgeSum/edgeN)/120) };
 }
-
-function renderResult(){
-  const {pest, confidence, severity} = currentResult;
-  document.getElementById('pestName').textContent = pest.name[lang];
-  document.getElementById('confVal').textContent = confidence + '%';
-  document.getElementById('confBar').style.width = confidence + '%';
-  const badge = document.getElementById('sevBadge');
-  badge.textContent = T[severity][lang];
-  badge.className = 'sev ' + severity;
-  document.getElementById('tipsPestName').textContent = pest.name[lang];
-  const ol = document.getElementById('tipsList');
-  ol.innerHTML = '';
-  pest.tips[lang].forEach(t=>{
-    const li = document.createElement('li'); li.textContent = t; ol.appendChild(li);
-  });
+function runAnalysis(){
+  goto('loading');
+  setTimeout(()=>{
+    const feat=analyzeImage(imgEl);
+    const candidates=PESTS.filter(p=>p.crop===selectedCrop);
+    let best=null,bestDist=Infinity;
+    candidates.forEach(p=>{
+      const s=p.sig;
+      const dist=Math.sqrt(
+        Math.pow(feat.green-s.green,2)+ Math.pow(feat.brown-s.brown,2)*1.1+
+        Math.pow(feat.dark-s.dark,2)*1.2 + Math.pow(feat.edge-s.edge,2)*1.3
+      );
+      if(dist<bestDist){bestDist=dist;best=p;}
+    });
+    const confidence=Math.max(42, Math.min(94, Math.round(100-bestDist*130)));
+    const sevScore=feat.brown+feat.dark;
+    const severity = sevScore<0.14 ? 'low' : sevScore<0.32 ? 'moderate' : 'severe';
+    lastResult={pest:best, confidence, severity};
+    renderResult(lastResult);
+    goto('result');
+  }, 650);
 }
-
-applyLang();
+function renderResult(r){
+  document.getElementById('resName').textContent = lang==='ha' ? r.pest.ha.name : r.pest.en.name;
+  document.getElementById('resConf').textContent = r.confidence+'%';
+  document.getElementById('resMeter').style.width = r.confidence+'%';
+  document.getElementById('resDesc').textContent = r.pest.en.desc;
+  const badge=document.getElementById('resBadge');
+  badge.className='badge '+r.severity;
+  badge.textContent=I18N[lang][r.severity];
+  const list=document.getElementById('ipmList'); list.innerHTML='';
+  r.pest.ipm.forEach(step=>{ const li=document.createElement('li'); li.textContent=step; list.appendChild(li); });
+  document.getElementById('haSummary').textContent = (lang==='ha'?'Taƙaitawa: ':'Hausa summary: ')+r.pest.haSum;
+}
+function toggleTreat(){
+  const block=document.getElementById('ipmBlock');
+  block.style.display = block.style.display==='none' ? 'block':'none';
+}
 </script>
 </body>
 </html>
